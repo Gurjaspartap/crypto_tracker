@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Price Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        th,
+        td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #3498db;
+            color: #fff;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .loading {
+            text-align: center;
+            font-size: 1.2em;
+            margin-top: 20px;
+        }
+
+        .error {
+            color: #e74c3c;
+            text-align: center;
+            font-size: 1.2em;
+            margin-top: 20px;
+        }
+
+        .updated-time {
+            text-align: right;
+            margin-top: 10px;
+            font-style: italic;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Crypto Price Tracker</h1>
+    <div id="lastUpdated" class="updated-time"></div>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Last Price</th>
+                <th>Buy Price</th>
+                <th>Sell Price</th>
+                <th>Volume</th>
+                <th>Base Unit</th>
+            </tr>
+        </thead>
+        <tbody id="cryptoData">
+            <!-- Data will be inserted here -->
+        </tbody>
+    </table>
+    <div id="loading" class="loading">Loading data...</div>
+    <div id="error" class="error"></div>
+
+    <script>
+        const cryptoDataElement = document.getElementById('cryptoData');
+        const loadingElement = document.getElementById('loading');
+        const errorElement = document.getElementById('error');
+        const lastUpdatedElement = document.getElementById('lastUpdated');
+
+        /**
+         * Fetches data from server and updates the table and last updated time
+         * 
+         * Shows a loading message while data is being fetched, and an error message
+         * if there is an error. If the fetch is successful, it updates the table
+         * with the new data and the last updated time.
+         */
+        function fetchData() {
+            loadingElement.style.display = 'block';
+            errorElement.style.display = 'none';
+
+            fetch('http://localhost:3000/fetchdata/getdata')
+                .then(response => response.json())
+                .then(data => {
+                    loadingElement.style.display = 'none';
+                    cryptoDataElement.innerHTML = '';
+
+                    data.forEach(item => {
+                        const row = `
+                            <tr>
+                                <td>${item.name}</td>
+                                <td>${item.last}</td>
+                                <td>${item.buy}</td>
+                                <td>${item.sell}</td>
+                                <td>${item.volume}</td>
+                                <td>${item.base_unit}</td>
+                            </tr>
+                        `;
+                        cryptoDataElement.innerHTML += row;
+                    });
+
+                    lastUpdatedElement.textContent = `Last updated: ${new Date().toLocaleString()}`;
+                })
+                .catch(error => {
+                    loadingElement.style.display = 'none';
+                    errorElement.style.display = 'block';
+                    errorElement.textContent = 'Error fetching data. Please try again later.';
+                    console.error('Error fetching data:', error);
+                });
+        }
+
+        // Fetch data initially and then every 5 minutes
+        fetchData();
+        setInterval(fetchData, 5 * 60 * 1000);
+    </script>
+</body>
+
+</html>

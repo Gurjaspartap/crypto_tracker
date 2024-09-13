@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Price Tracker</title>
+    <link href="style.css" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Header Section -->
+    <div class="header">
+        <div class="logo">CryptoCompare</div>
+        <button class="telegram-button">Connect</button>
+    </div>
+
+    <!-- Best Price Section -->
+    <div class="price-info">
+        <div>Best Price to Trade</div>
+        <div class="best-price">₹ 26,56,110</div>
+        <div>Average BTC/INR net price including commission</div>
+    </div>
+
+    <!-- Price Changes Section -->
+    <div class="price-changes">
+        <div class="change">
+            <div>0.1%</div>
+            <div>5 Mins</div>
+        </div>
+        <div class="change">
+            <div>0.96%</div>
+            <div>1 Hour</div>
+        </div>
+        <div class="change">
+            <div>2.73%</div>
+            <div>1 Day</div>
+        </div>
+        <div class="change">
+            <div>7.51%</div>
+            <div>7 Days</div>
+        </div>
+    </div>
+
+    <!-- Table Section -->
+    <table class="table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Platform</th>
+                <th>Last Traded Price</th>
+                <th>Buy / Sell Price</th>
+                <th>Difference</th>
+                <th>Savings</th>
+            </tr>
+        </thead>
+        <tbody id="cryptoData">
+            <!-- Data will be dynamically inserted here -->
+        </tbody>
+    </table>
+
+    <!-- Loading and Error Messages -->
+    <div id="loading" class="loading">Loading data...</div>
+    <div id="error" class="error"></div>
+
+    <script>
+        const cryptoDataElement = document.getElementById('cryptoData');
+        const loadingElement = document.getElementById('loading');
+        const errorElement = document.getElementById('error');
+
+        function fetchData() {
+            loadingElement.style.display = 'block';
+            errorElement.style.display = 'none';
+
+            fetch('http://localhost:3000/fetchdata/getdata')
+                .then(response => response.json())
+                .then(data => {
+                    loadingElement.style.display = 'none';
+                    cryptoDataElement.innerHTML = '';
+
+                    data.forEach((item, index) => {
+                        const last = parseFloat(item.last);
+
+
+                        const buy = parseFloat(item.buy);
+                        const sell = parseFloat(item.sell);
+
+                        // Calculate difference (in percentage)
+                        const difference = ((last - buy) / last) * 100;
+
+                        console.log(open)
+                        // Calculate savings (difference between last and buy price)
+                        const savings = (last - buy);
+
+                        const row = `
+                            <tr>
+                                <td>${index + 1}</td>
+                                <td>${item.name}</td>
+                                <td>₹ ${last.toFixed(2)}</td>
+                                <td>₹ ${buy.toFixed(2)} / ₹ ${sell.toFixed(2)}</td>
+                                <td class="${difference > 0 ? 'positive' : 'negative'}">${difference.toFixed(2)}%</td>
+                                <td class="${savings >= 0 ? 'positive' : 'negative'}">${savings >= 0 ? '▲' : '▼'} ₹ ${Math.abs(savings).toFixed(2)}</td>
+                            </tr>
+                        `;
+
+                        cryptoDataElement.innerHTML += row;
+                    });
+                })
+                .catch(error => {
+                    loadingElement.style.display = 'none';
+                    errorElement.style.display = 'block';
+                    errorElement.textContent = 'Error fetching data. Please try again later.';
+                    console.error('Error fetching data:', error);
+                });
+        }
+
+        fetchData();
+        setInterval(fetchData, 5 * 60 * 1000); // Refresh every 5 minutes
+    </script>
+</body>
+
+</html>
