@@ -28,5 +28,7 @@ A simple crypto tracker that fetches and stores data of the top 10 cryptocurrenc
    npm install
 Contact
 Feel free to reach out if you have any questions or suggestions!
+![image](https://github.com/user-attachments/assets/32d255ee-b848-45d3-90b1-1649bbbb1edd)
+
 
 
